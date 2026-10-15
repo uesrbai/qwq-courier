@@ -1,8 +1,14 @@
 # qwq 消息分发 · Notification Hub
 
+[![Deploy on Zeabur](https://zeabur.com/button.svg)](https://zeabur.com/templates/REPLACE_WITH_YOUR_TEMPLATE_CODE)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
+
 一个统一的**通知消息分发平台**：你的各个系统只要调用一个接口、带上密钥，就能通过
 短信、邮件、微信公众号、飞书、钉钉、Webhook 等渠道把消息发出去。支持多服务商、
 分组轮询/负载均衡、模板化发送、测试/生产密钥、IP 白名单、限速、IAM 子账号，界面中英文双语。
+
+> 👆 上面的「Deploy on Zeabur」按钮需要先把本仓库发布为 Zeabur 模板、拿到模板码后替换
+> 链接里的 `REPLACE_WITH_YOUR_TEMPLATE_CODE`。发布步骤见下方 [一键部署与上架 Zeabur 市场](#一键部署与上架-zeabur-市场)。
 
 ## 技术栈
 
@@ -88,7 +94,33 @@ curl -X POST http://localhost:3000/api/v1/send \
 3. 收件人支持逗号分隔的多个地址（总数 ≤ 50）。接口文档：
    https://zeabur.com/docs/en-US/email/rest-api
 
-## 部署到 Zeabur
+## 一键部署与上架 Zeabur 市场
+
+本仓库自带 Zeabur 模板文件 [`zeabur.yaml`](./zeabur.yaml)（Git 服务 + `/data` 持久卷 +
+自动生成 `AUTH_SECRET` + 绑定域名），可直接发布成「一键部署」模板上架 [Zeabur 模板市场](https://zeabur.com/templates)。
+
+**发布步骤（用你自己的 Zeabur 账号）：**
+
+```bash
+# 1.（可选）先本地测试这个模板能不能正常部署
+npx zeabur@latest template deploy -f zeabur.yaml
+
+# 2. 发布到市场，命令会返回一个【模板码】（形如 VTZ4FX），请记下
+npx zeabur@latest template create -f zeabur.yaml
+
+# 以后更新模板：
+# npx zeabur@latest template update -c <模板码> -f zeabur.yaml
+```
+
+3. 把返回的**模板码**填进 README 顶部按钮链接里的 `REPLACE_WITH_YOUR_TEMPLATE_CODE`
+   （即 `https://zeabur.com/templates/<模板码>`）。
+4. 想要带你个人推荐码的官方按钮：Zeabur 控制台 → 账户 → **Template** 标签 → 选中该模板 →
+   **Share** → 复制按钮代码，替换 README 顶部那一行即可。
+
+> 模板里 `repoID: 1305044949` 对应 GitHub 仓库 `uesrbai/qwq-message`、分支 `master`。
+> 若 fork 到别的仓库，改成你自己仓库的数字 repoID（`https://api.github.com/repos/<owner>/<repo>` 里的 `id`）。
+
+## 部署到 Zeabur（手动）
 
 推荐 **SQLite + 持久磁盘**：代码零改动，本地与线上完全一致，适合内部工具。
 
@@ -127,3 +159,7 @@ curl -X POST http://localhost:3000/api/v1/send \
 - **务必设置随机的 `AUTH_SECRET`**（默认值仅用于本地）。
 - qwq-sso 生产用 `sk_live_` 密钥，并用 `QWQ_SSO_ALLOWED_EMAILS` 限定可登录邮箱。
 - 生产密钥务必设置可信 IP 白名单。
+
+## 开源协议 / License
+
+本项目基于 **[MIT 协议](./LICENSE)** 开源，可自由使用、修改、分发与商用，保留版权与许可声明即可。

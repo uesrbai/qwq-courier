@@ -1,0 +1,73 @@
+# yaml-language-server: $schema=https://schema.zeabur.app/template.json
+# Zeabur 一键部署模板 —— qwq 消息分发 / Notify Hub
+# 发布：  npx zeabur@latest template create -f zeabur.yaml   （拿到模板码后填进 README 的部署按钮）
+# 本地测试部署： npx zeabur@latest template deploy -f zeabur.yaml
+apiVersion: zeabur.com/v1
+kind: Template
+metadata:
+  name: qwq Notify Hub
+spec:
+  description: Unified notification dispatch platform — one API to send via SMS, email, WeChat, Feishu, DingTalk, WeCom and Webhook.
+  tags:
+    - Notification
+    - Tool
+    - Next.js
+  readme: |-
+    # qwq Notify Hub
+
+    A self-hosted **unified notification dispatch platform**. Your systems call one
+    API with a key and send through SMS / email / WeChat Official Account / Feishu /
+    DingTalk / WeCom / Webhook. Multi-provider, group round-robin & failover,
+    templates, test/production keys, IP allowlist, rate limiting, IAM sub-accounts,
+    bilingual (中/EN) UI.
+
+    After deploy, open the site — the first visit guides you to create the admin
+    (Owner) account. Data is stored in SQLite on a persistent volume at `/data`.
+  variables:
+    - key: PUBLIC_DOMAIN
+      type: DOMAIN
+      name: Domain
+      description: Public domain for the platform (used for SSO callback and absolute links).
+  services:
+    - name: qwq-notify-hub
+      template: GIT
+      domainKey: PUBLIC_DOMAIN
+      spec:
+        source:
+          type: GITHUB
+          repoID: 1305044949
+          branch: master
+          rootDirectory: /
+        ports:
+          - id: web
+            port: 8080
+            type: HTTP
+        volumes:
+          - id: data
+            dir: /data
+        env:
+          DATABASE_URL:
+            default: file:/data/qwq.db
+            readonly: true
+          AUTH_SECRET:
+            default: ${PASSWORD}
+            readonly: true
+          APP_URL:
+            default: https://${PUBLIC_DOMAIN}
+            readonly: false
+  localization:
+    zh-CN:
+      description: 统一通知消息分发平台 —— 一个接口把消息发到短信 / 邮件 / 微信公众号 / 飞书 / 钉钉 / 企业微信 / Webhook。
+      readme: |-
+        # qwq 消息分发 · Notify Hub
+
+        自托管的**统一通知消息分发平台**。你的各系统只要调用一个接口、带上密钥，就能通过
+        短信 / 邮件 / 微信公众号 / 飞书 / 钉钉 / 企业微信 / Webhook 把消息发出去。支持多服务商、
+        分组轮询与容灾、模板化发送、测试/生产密钥、IP 白名单、限速、IAM 子账号，界面中英双语。
+
+        部署完成后打开站点，首次访问会引导你**创建管理员（Owner）账号**。数据以 SQLite
+        存放在挂载到 `/data` 的持久卷上。
+      variables:
+        - key: PUBLIC_DOMAIN
+          name: 访问域名
+          description: 平台的公开访问域名（用于 SSO 回调与绝对链接拼接）。
