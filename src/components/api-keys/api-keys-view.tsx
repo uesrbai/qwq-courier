@@ -23,6 +23,7 @@ export type KeyDTO = {
   scopes: string;
   allowedIps: string;
   rateLimitPerMin: number | null;
+  allowIam: boolean;
   enabled: boolean;
   lastUsedAt: string | null;
   createdAt: string;
@@ -50,10 +51,12 @@ export function ApiKeysView({
   baseUrl,
   keys,
   defaultRateLimit,
+  canManageIam,
 }: {
   baseUrl: string;
   keys: KeyDTO[];
   defaultRateLimit: number;
+  canManageIam: boolean;
 }) {
   const { dict } = useI18n();
   const t = dict.apiKeys;
@@ -193,6 +196,7 @@ export function ApiKeysView({
           onClose={() => setDialogOpen(false)}
           onCreated={(key) => setCreatedKey(key)}
           defaultRateLimit={defaultRateLimit}
+          canManageIam={canManageIam}
         />
       )}
     </div>
@@ -240,6 +244,11 @@ function KeyCard({ k, defaultRateLimit }: { k: KeyDTO; defaultRateLimit: number 
               {isTest ? dict.keyTypes.TEST : dict.keyTypes.PRODUCTION}
             </span>
             <span className="truncate text-sm font-semibold text-slate-900">{k.name}</span>
+            {k.allowIam && (
+              <span className="rounded-md bg-amber-50 px-1.5 py-0.5 text-xs font-medium text-amber-600">
+                {t.allowIamBadge}
+              </span>
+            )}
             {!k.enabled && <span className="text-xs text-slate-400">· {t.disabledTag}</span>}
           </div>
           <code className="mt-1 block text-xs text-slate-400">{k.keyPrefix}</code>

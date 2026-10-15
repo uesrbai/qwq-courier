@@ -216,7 +216,7 @@ function IamCard({ a, onEdit }: { a: IamDTO; onEdit: () => void }) {
 function CreateIamDialog({ onClose }: { onClose: () => void }) {
   const { dict } = useI18n();
   const t = dict.settings;
-  const { bind } = useFormValues({ username: "", email: "", password: "" });
+  const { bind } = useFormValues({ username: "", email: "", password: "", ssoSubject: "" });
   const [features, setFeatures] = useState<string[]>([]);
   const [methods, setMethods] = useState<string[]>([]);
   const [state, action, pending] = useActionState<FormState, FormData>(createIamAction, undefined);
@@ -242,6 +242,9 @@ function CreateIamDialog({ onClose }: { onClose: () => void }) {
             placeholder={t.passwordPlaceholder}
             className={inputCls}
           />
+        </Field>
+        <Field label={t.ssoBindOptional} help={t.ssoBindOptionalHint}>
+          <input name="ssoSubject" {...bind("ssoSubject")} placeholder="qwq-sso sub" className={inputCls} />
         </Field>
 
         <PermissionFields

@@ -21,7 +21,8 @@
 11. [多语言 SDK 示例](#11-多语言-sdk-示例)
 12. [常见问题 FAQ](#12-常见问题-faq)
 13. [兼容其他推送系统（Server酱 / PushPlus / Bark / 通用）](#13-兼容其他推送系统server酱--pushplus--bark--通用)
-14. [附录 A：qwq-sso 单点登录（管理员）](#附录-aqwq-sso-单点登录管理员)
+14. [IAM 子账号管理 API（外部平台）](#14-iam-子账号管理-api外部平台)
+15. [附录 A：qwq-sso 单点登录（管理员）](#附录-aqwq-sso-单点登录管理员)
 
 ---
 
@@ -97,6 +98,7 @@ Authorization: Bearer qwq_live_xxxxxxxxxxxxxxxx
 | GET  | `/api/v1/templates` | 列出当前密钥可见的所有模板 |
 | GET  | `/api/v1/templates?code=<编号>` | 查询单个模板及其变量骨架 |
 | POST | `/api/compat/*` | 兼容其他推送系统（Server酱/PushPlus/Bark/通用），见 [第 13 节](#13-兼容其他推送系统server酱--pushplus--bark--通用) |
+| —    | `/api/v1/iam`, `/api/v1/iam/:id` | IAM 子账号管理（外部平台增删改/停用启用），见 [第 14 节](#14-iam-子账号管理-api外部平台) |
 
 ---
 
@@ -546,6 +548,113 @@ curl -X POST "https://qwq-message.zeabur.app/api/compat/generic/qwq_live_xxx~ops
 
 > 认证、IP 白名单、限速、方式权限、容灾等规则与主接口一致：token 里的密钥无效返回 401、
 > 生产密钥非白名单 IP 返回 403、分组不存在返回 404、全部渠道失败返回 502。
+
+---
+
+## 14. IAM 子账号管理 API（外部平台）
+
+让外部平台通过 API **创建 / 删除 / 修改 / 停用 / 启用** IAM 子账号，并可在创建时**预绑 qwq-sso**。
+
+> **身份权威**：子账号始终由本平台（qwq）创建与管理；qwq-sso 只是可选的登录绑定方式，
+> **绝不会单方创建或发放账号**。
+
+### 14.1 鉴权（高权限）
+
+这些接口需要一枚**开启了「可管理 IAM」的密钥**：在后台「API 管理 → 新建密钥」里勾选
+**「允许用此密钥管理 IAM 子账号」**（仅 OWNER/ADMIN 可勾）。用法同主接口，请求头：
+
+```
+Authorization: Bearer <该密钥>
+```
+
+通过该密钥创建的子账号，归属于**密钥属主**（即勾选时的那个 OWNER/ADMIN）。无此权限的密钥调用返回 **403**。
+
+### 14.2 接口
+
+| 方法 | 路径 | 说明 |
+|------|------|------|
+| GET | `/api/v1/iam` | 列出本密钥属主下的所有子账号 |
+| POST | `/api/v1/iam` | 创建子账号 |
+| GET | `/api/v1/iam/:id` | 查看某子账号 |
+| PATCH | `/api/v1/iam/:id` | 修改（含**停用/启用**） |
+| DELETE | `/api/v1/iam/:id` | 删除子账号 |
+
+### 14.3 创建 `POST /api/v1/iam`
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `username` | string | 是 | 登录名，全局唯一，≥2 字符 |
+| `password` | string | 否 | 登录密码，≥6 位。**留空则自动生成**，并在返回里给出一次 |
+| `email` | string | 否 | 邮箱，缺省自动生成 `iam_<用户名>@local` |
+| `displayName` | string | 否 | 显示名，缺省同用户名 |
+| `features` | string[] | 否 | 可访问功能：`channels`/`templates`/`test`/`apiKeys`/`logs` |
+| `methods` | string[] | 否 | 可管理的分发方式：`WEBHOOK`/`SMS`/`EMAIL`/`WECHAT_MP`/`FEISHU`/`DINGTALK`/`WECOM` |
+| `ssoSubject` | string | 否 | **预绑 qwq-sso**：填该用户的 qwq-sso 身份标识(sub)，建好即可用 qwq-sso 登录 |
+
+成功 **201**：
+
+```json
+{
+  "success": true,
+  "account": {
+    "id": "cmv...", "username": "ext_user1", "displayName": "外部用户1",
+    "email": "iam_ext_user1@local", "status": "ACTIVE", "enabled": true,
+    "features": ["logs","test"], "methods": ["SMS"],
+    "ssoBound": true, "ssoSubject": "sso-sub-abc", "createdAt": "2026-..."
+  },
+  "password": "wf2JfyTgemfB"   // 仅当未传 password、由系统自动生成时返回，请当场保存
+}
+```
+
+### 14.4 修改 `PATCH /api/v1/iam/:id`
+
+按需传字段（都可选）：`displayName`、`password`（重置）、`features`、`methods`、
+`enabled`（`true`=启用 / `false`=停用）、`ssoSubject`（字符串=绑定/换绑；`null` 或空串=解绑）。
+
+```bash
+# 停用
+curl -X PATCH https://qwq-message.zeabur.app/api/v1/iam/<id> \
+  -H "Authorization: Bearer <IAM管理密钥>" -H "Content-Type: application/json" \
+  -d '{"enabled": false}'
+
+# 启用 + 调整权限 + 换绑 SSO
+curl -X PATCH https://qwq-message.zeabur.app/api/v1/iam/<id> \
+  -H "Authorization: Bearer <IAM管理密钥>" -H "Content-Type: application/json" \
+  -d '{"enabled": true, "features": ["channels","logs"], "ssoSubject": "new-sub"}'
+```
+
+### 14.5 删除 `DELETE /api/v1/iam/:id`
+
+```bash
+curl -X DELETE https://qwq-message.zeabur.app/api/v1/iam/<id> \
+  -H "Authorization: Bearer <IAM管理密钥>"
+# → {"success": true, "deleted": "<id>"}
+```
+
+### 14.6 创建示例
+
+```bash
+curl -X POST https://qwq-message.zeabur.app/api/v1/iam \
+  -H "Authorization: Bearer <IAM管理密钥>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "username": "ext_user1",
+    "displayName": "外部用户1",
+    "features": ["logs","test"],
+    "methods": ["SMS"],
+    "ssoSubject": "sso-sub-abc"
+  }'
+```
+
+### 14.7 错误码
+
+| HTTP | 场景 |
+|------|------|
+| 400 | 请求体非法 JSON / 用户名 < 2 / 密码 < 6 |
+| 401 | 密钥缺失或无效 |
+| 403 | 密钥未开启「可管理 IAM」，或属主不是 OWNER/ADMIN |
+| 404 | 子账号不存在（或不属于该密钥属主） |
+| 409 | 用户名已存在 / 该 qwq-sso 身份已被别的账号绑定 |
 
 ---
 

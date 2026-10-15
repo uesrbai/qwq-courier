@@ -123,6 +123,7 @@ model ApiKey {
   scopes          String    @default("[]") // JSON：允许的分发方式/接口
   allowedIps      String    @default("[]") // JSON：生产密钥可信IP
   rateLimitPerMin Int? // 测试密钥慢速限制（每分钟次数）
+  allowIam        Boolean   @default(false) // 允许用该密钥通过 API 管理 IAM 子账号（高权限，仅 OWNER/ADMIN 可开）
   enabled         Boolean   @default(true)
   lastUsedAt      DateTime?
   createdAt       DateTime  @default(now())

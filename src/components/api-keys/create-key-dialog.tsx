@@ -40,11 +40,13 @@ export function CreateKeyDialog({
   onClose,
   onCreated,
   defaultRateLimit,
+  canManageIam,
 }: {
   open: boolean;
   onClose: () => void;
   onCreated: (key: string) => void;
   defaultRateLimit: number;
+  canManageIam?: boolean;
 }) {
   const { dict } = useI18n();
   const t = dict.apiKeys;
@@ -136,6 +138,16 @@ export function CreateKeyDialog({
               className={inputCls}
             />
           </Field>
+        )}
+
+        {canManageIam && (
+          <label className="flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
+            <input type="checkbox" name="allowIam" className="mt-0.5 h-4 w-4 rounded border-amber-300" />
+            <span>
+              <span className="font-medium">{t.allowIam}</span>
+              <span className="mt-0.5 block text-xs text-amber-600">{t.allowIamHint}</span>
+            </span>
+          </label>
         )}
 
         {state?.error && (

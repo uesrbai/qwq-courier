@@ -7,9 +7,10 @@ import { PageHeader } from "@/components/page-header";
 import { ApiKeysView, type KeyDTO } from "@/components/api-keys/api-keys-view";
 
 export default async function ApiKeysPage() {
-  await requireFeature("apiKeys");
+  const user = await requireFeature("apiKeys");
   const { dict } = await getI18n();
   const p = dict.pages.apiKeys;
+  const canManageIam = user.role !== "IAM";
 
   const h = await headers();
   const host = h.get("x-forwarded-host") ?? h.get("host") ?? "localhost:3000";
@@ -31,6 +32,7 @@ export default async function ApiKeysPage() {
     scopes: k.scopes,
     allowedIps: k.allowedIps,
     rateLimitPerMin: k.rateLimitPerMin,
+    allowIam: k.allowIam,
     enabled: k.enabled,
     lastUsedAt: k.lastUsedAt ? k.lastUsedAt.toISOString() : null,
     createdAt: k.createdAt.toISOString(),
@@ -39,7 +41,12 @@ export default async function ApiKeysPage() {
   return (
     <>
       <PageHeader title={p.title} description={p.desc} />
-      <ApiKeysView baseUrl={baseUrl} keys={keys} defaultRateLimit={defaultRateLimit} />
+      <ApiKeysView
+        baseUrl={baseUrl}
+        keys={keys}
+        defaultRateLimit={defaultRateLimit}
+        canManageIam={canManageIam}
+      />
     </>
   );
 }

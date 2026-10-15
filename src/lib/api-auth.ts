@@ -21,6 +21,23 @@ export function extractBearer(req: Request): string | null {
   return null;
 }
 
+/** IAM 管理鉴权：密钥须开启 allowIam，且属主是 OWNER/ADMIN（非 IAM）。返回 parentId=属主id */
+export async function authenticateIamKey(
+  req: Request,
+): Promise<{ ok: true; parentId: string } | { ok: false; status: number; error: string }> {
+  const auth = await authenticateApiKey(req);
+  if (!auth.ok) return { ok: false, status: auth.status, error: auth.error };
+  const key = auth.key;
+  if (!key.allowIam) {
+    return { ok: false, status: 403, error: "该密钥无 IAM 管理权限 / key not allowed to manage IAM" };
+  }
+  const owner = await prisma.user.findUnique({ where: { id: key.userId } });
+  if (!owner || owner.role === "IAM" || owner.status !== "ACTIVE") {
+    return { ok: false, status: 403, error: "密钥属主无权管理 IAM / key owner cannot manage IAM" };
+  }
+  return { ok: true, parentId: owner.id };
+}
+
 /** 密钥是否允许该分发方式 */
 export function keyAllowsMethod(key: NonNullable<ApiKeyRecord>, method: string): boolean {
   if (key.scopeType === "FULL") return true;

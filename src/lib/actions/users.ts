@@ -9,6 +9,7 @@ import { getLocale } from "@/lib/i18n/server";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { IAM_FEATURES, canAccessFeature } from "@/lib/permissions";
 import { METHOD_KEYS, type MethodKey } from "@/lib/constants";
+import { createIamUser } from "@/lib/iam-core";
 
 export type FormState = { ok?: boolean; error?: string } | undefined;
 
@@ -32,43 +33,22 @@ export async function changePasswordAction(_prev: FormState, fd: FormData): Prom
   return { ok: true };
 }
 
-// ---------- 创建 IAM 子账号 ----------
+// ---------- 创建 IAM 子账号（可预绑 qwq-sso）----------
 export async function createIamAction(_prev: FormState, fd: FormData): Promise<FormState> {
   const user = await requireUser();
   const t = getDictionary(await getLocale()).settings;
   if (user.role === "IAM") return { error: t.errNoPermission };
 
-  const username = String(fd.get("username") ?? "").trim();
-  const password = String(fd.get("password") ?? "");
-  const emailInput = String(fd.get("email") ?? "").trim();
-  const featureList = IAM_FEATURES as readonly string[];
-  const features = fd.getAll("features").map(String).filter((f) => featureList.includes(f));
-  const methods = fd
-    .getAll("methods")
-    .map(String)
-    .filter((m) => METHOD_KEYS.includes(m as MethodKey));
-
-  if (username.length < 2) return { error: t.errUsername };
-  if (password.length < 6) return { error: t.errPwdShort };
-  if (await prisma.user.findUnique({ where: { username } })) return { error: t.errUserExists };
-
-  let email = emailInput || `iam_${username}@local`;
-  if (await prisma.user.findUnique({ where: { email } })) {
-    email = `iam_${username}_${Date.now()}@local`;
-  }
-
-  await prisma.user.create({
-    data: {
-      email,
-      username,
-      displayName: username,
-      passwordHash: hashPassword(password),
-      role: "IAM",
-      parentId: user.id,
-      permissions: JSON.stringify({ features, methods }),
-    },
+  const r = await createIamUser(user.id, {
+    username: String(fd.get("username") ?? ""),
+    password: String(fd.get("password") ?? ""),
+    email: String(fd.get("email") ?? ""),
+    features: fd.getAll("features").map(String),
+    methods: fd.getAll("methods").map(String),
+    ssoSubject: String(fd.get("ssoSubject") ?? ""),
   });
-  await logOperation(user, "iam.create", username);
+  if (!r.ok) return { error: r.error };
+  await logOperation(user, "iam.create", r.user.username);
   revalidatePath("/settings");
   return { ok: true };
 }

@@ -36,6 +36,8 @@ export async function createApiKeyAction(_prev: KeyFormState, fd: FormData): Pro
   const rateRaw = String(fd.get("rateLimitPerMin") ?? "").trim();
   const rateLimitPerMin =
     type === "TEST" && rateRaw ? Math.max(1, Number(rateRaw) || 0) || null : null;
+  // 高权限：允许用该密钥通过 API 管理 IAM 子账号，仅 OWNER/ADMIN 可开
+  const allowIam = user.role !== "IAM" && String(fd.get("allowIam") ?? "") === "on";
 
   if (!name) return { error: t.errName };
   if (scopeType === "SCOPED" && scopes.length === 0) return { error: t.errScope };
@@ -54,6 +56,7 @@ export async function createApiKeyAction(_prev: KeyFormState, fd: FormData): Pro
       scopes: JSON.stringify(scopes),
       allowedIps: JSON.stringify(allowedIps),
       rateLimitPerMin,
+      allowIam,
     },
   });
   await logOperation(user, "apikey.create", `${name} [${type}]`);
