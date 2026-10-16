@@ -1,6 +1,6 @@
 # qwq 消息分发 · Notification Hub
 
-[![Deploy on Zeabur](https://zeabur.com/button.svg)](https://zeabur.com/templates/IOC9U0)
+[![Deploy on Zeabur](https://zeabur.com/button.svg)](https://zeabur.com/templates/I0C9U0)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
 
 一个统一的**通知消息分发平台**：你的各个系统只要调用一个接口、带上密钥，就能通过
@@ -8,7 +8,7 @@
 分组轮询/负载均衡、模板化发送、测试/生产密钥、IP 白名单、限速、IAM 子账号，界面中英文双语。
 
 > 👆 点上面的「**Deploy on Zeabur**」即可一键部署本平台到 Zeabur
-> （模板：<https://zeabur.com/templates/IOC9U0>）。想要带你个人推荐码的官方按钮，
+> （模板：<https://zeabur.com/templates/I0C9U0>）。想要带你个人推荐码的官方按钮，
 > 或 fork 后换成自己的模板，见下方 [一键部署与上架 Zeabur 市场](#一键部署与上架-zeabur-市场)。
 
 ## 技术栈
@@ -100,13 +100,13 @@ curl -X POST http://localhost:3000/api/v1/send \
 本仓库自带 Zeabur 模板文件 [`zeabur.yaml`](./zeabur.yaml)（Git 服务 + `/data` 持久卷 +
 自动生成 `AUTH_SECRET` + 绑定域名），可直接发布成「一键部署」模板上架 [Zeabur 模板市场](https://zeabur.com/templates)。
 
-本平台**已发布到 Zeabur 市场**：**<https://zeabur.com/templates/IOC9U0>**（README 顶部的部署按钮即指向它）。
+本平台**已发布到 Zeabur 市场**：**<https://zeabur.com/templates/I0C9U0>**（README 顶部的部署按钮即指向它）。
 
 **改了 `zeabur.yaml` 后更新模板：**
 
 ```bash
 # Windows 若 npx 被执行策略拦截，用 npx.cmd 代替 npx
-npx.cmd zeabur@latest template update -c IOC9U0 -f zeabur.yaml
+npx.cmd zeabur@latest template update -c I0C9U0 -f zeabur.yaml
 ```
 
 **从零发布一个新模板（如 fork 到别的仓库）：**
