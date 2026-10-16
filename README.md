@@ -117,8 +117,8 @@ npx zeabur@latest template create -f zeabur.yaml
 4. 想要带你个人推荐码的官方按钮：Zeabur 控制台 → 账户 → **Template** 标签 → 选中该模板 →
    **Share** → 复制按钮代码，替换 README 顶部那一行即可。
 
-> 模板里 `repoID: 1305044949` 对应 GitHub 仓库 `uesrbai/qwq-message`、分支 `master`。
-> 若 fork 到别的仓库，改成你自己仓库的数字 repoID（`https://api.github.com/repos/<owner>/<repo>` 里的 `id`）。
+> 模板里 `repo: 1305044949` 对应 GitHub 仓库 `uesrbai/qwq-message`、分支 `master`。
+> 若 fork 到别的仓库，改成你自己仓库的数字 repo id（`https://api.github.com/repos/<owner>/<repo>` 里的 `id`）。
 
 ## 部署到 Zeabur（手动）
 

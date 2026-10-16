@@ -44,8 +44,8 @@ spec:
       domainKey: PUBLIC_DOMAIN
       spec:
         source:
-          type: GITHUB
-          repoID: 1305044949
+          source: GITHUB
+          repo: 1305044949
           branch: master
           rootDirectory: /
         ports:
@@ -57,14 +57,11 @@ spec:
             dir: /data
         env:
           DATABASE_URL:
-            default: file:/data/qwq.db
-            readonly: true
+            default: "file:/data/qwq.db"
           AUTH_SECRET:
-            default: ${PASSWORD}
-            readonly: true
+            default: "${PASSWORD}"
           APP_URL:
-            default: https://${PUBLIC_DOMAIN}
-            readonly: false
+            default: "https://${PUBLIC_DOMAIN}"
   localization:
     zh-CN:
       description: 统一通知消息分发平台 —— 一个接口把消息发到短信/邮件/微信公众号/飞书/钉钉/企业微信/Webhook，含模板、容灾与 IAM 管理 API。
