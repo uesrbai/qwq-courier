@@ -7,22 +7,32 @@ kind: Template
 metadata:
   name: qwq Notify Hub
 spec:
-  description: Unified notification dispatch platform — one API to send via SMS, email, WeChat, Feishu, DingTalk, WeCom and Webhook.
+  description: Unified notification dispatch platform — one API to send via SMS, email, WeChat, Feishu, DingTalk, WeCom and Webhook, with templates, failover and an IAM management API.
   tags:
     - Notification
     - Tool
+    - API
     - Next.js
   readme: |-
     # qwq Notify Hub
 
     A self-hosted **unified notification dispatch platform**. Your systems call one
     API with a key and send through SMS / email / WeChat Official Account / Feishu /
-    DingTalk / WeCom / Webhook. Multi-provider, group round-robin & failover,
-    templates, test/production keys, IP allowlist, rate limiting, IAM sub-accounts,
-    bilingual (中/EN) UI.
+    DingTalk / WeCom / Webhook.
+
+    **Highlights**
+    - Multi-provider per channel, group round-robin / least-used, automatic **failover**
+    - **Templates** with auto-extracted variables; send by template code
+    - **Test / production API keys**, IP allowlist, rate limiting, per-method scopes
+    - **Compatible endpoints** — point Server酱 / PushPlus / Bark at it, no code changes
+    - **IAM management API** — external platforms create / update / disable / enable
+      sub-accounts via `/api/v1/iam`, with optional qwq-sso pre-binding
+    - Password login + **qwq-sso** SSO (bind-first; the platform stays the account authority)
+    - Call logs + audit log, exportable to Excel · bilingual (中 / EN) UI
 
     After deploy, open the site — the first visit guides you to create the admin
     (Owner) account. Data is stored in SQLite on a persistent volume at `/data`.
+    Full integration docs: see `API.md` in the repository.
   variables:
     - key: PUBLIC_DOMAIN
       type: DOMAIN
@@ -57,16 +67,24 @@ spec:
             readonly: false
   localization:
     zh-CN:
-      description: 统一通知消息分发平台 —— 一个接口把消息发到短信 / 邮件 / 微信公众号 / 飞书 / 钉钉 / 企业微信 / Webhook。
+      description: 统一通知消息分发平台 —— 一个接口把消息发到短信/邮件/微信公众号/飞书/钉钉/企业微信/Webhook，含模板、容灾与 IAM 管理 API。
       readme: |-
         # qwq 消息分发 · Notify Hub
 
         自托管的**统一通知消息分发平台**。你的各系统只要调用一个接口、带上密钥，就能通过
-        短信 / 邮件 / 微信公众号 / 飞书 / 钉钉 / 企业微信 / Webhook 把消息发出去。支持多服务商、
-        分组轮询与容灾、模板化发送、测试/生产密钥、IP 白名单、限速、IAM 子账号，界面中英双语。
+        短信 / 邮件 / 微信公众号 / 飞书 / 钉钉 / 企业微信 / Webhook 把消息发出去。
+
+        **核心能力**
+        - 每个渠道可配多服务商，分组轮询 / 调用最少，失败**自动容灾换渠道**
+        - **模板化发送**：正文自动解析变量，按模板编号调用
+        - **测试 / 生产密钥**、IP 白名单、限速、按分发方式限权
+        - **兼容端点**：Server酱 / PushPlus / Bark 等直接把推送地址指过来，不改代码
+        - **IAM 管理 API**：外部平台通过 `/api/v1/iam` 增删改、停用/启用子账号，可预绑 qwq-sso
+        - 账号密码登录 + **qwq-sso 单点登录**（先绑定再登录，平台始终是账号权威）
+        - 调用日志 + 操作审计，可导出 Excel · 界面中英双语
 
         部署完成后打开站点，首次访问会引导你**创建管理员（Owner）账号**。数据以 SQLite
-        存放在挂载到 `/data` 的持久卷上。
+        存放在挂载到 `/data` 的持久卷上。完整对接文档见仓库内 `API.md`。
       variables:
         - key: PUBLIC_DOMAIN
           name: 访问域名
