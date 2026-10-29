@@ -125,6 +125,39 @@ npx.cmd zeabur@latest template create -f zeabur.yaml
 > 模板里 `repo: 1305044949` 对应 GitHub 仓库 `uesrbai/qwq-courier`、分支 `master`。
 > 若 fork 到别的仓库，改成你自己仓库的数字 repo id（`https://api.github.com/repos/<owner>/<repo>` 里的 `id`）。
 
+## 部署到任意平台（Docker / 自建 PaaS）
+
+项目不绑定任何厂商，自带 [`Dockerfile`](./Dockerfile) 与 [`docker-compose.yml`](./docker-compose.yml)，
+任何支持 Docker 的平台或自建 PaaS 都能跑。
+
+**只需 3 个环境变量：**
+
+| 变量 | 说明 |
+|------|------|
+| `AUTH_SECRET` | **必填**，随机 64 位十六进制串（`node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`） |
+| `DATABASE_URL` | 默认 `file:/data/qwq.db`（SQLite，需把 `/data` 挂成持久卷）；或填 Postgres 连接串 |
+| `APP_URL` | 你的公开访问地址（SSO 回调靠它拼接） |
+
+**容器要点：** 监听端口 `3000`（尊重 `PORT` 环境变量）；SQLite 数据持久化在卷 `/data`。
+启动时会自动 `prisma db push` 同步表结构（失败也继续启动）。
+
+```bash
+# 本地/自托管快速起（docker compose，自带持久卷）
+docker compose up -d        # 记得先改 docker-compose.yml 里的 AUTH_SECRET
+
+# 或手动构建运行
+docker build -t qwq-courier .
+docker run -d -p 3000:3000 \
+  -e AUTH_SECRET=$(node -e "console.log(require('crypto').randomBytes(32).toString('hex'))") \
+  -e APP_URL=https://你的域名 \
+  -v qwq-data:/data \
+  qwq-courier
+```
+
+> 用 Postgres：把 `prisma/schema.prisma` 的 `provider = "sqlite"` 改成 `"postgresql"`，
+> `DATABASE_URL` 填连接串即可（`src/lib/db.ts` 会自动切换适配器，SQLite 卷就不需要了）。
+> 多副本部署时建议把建表（`prisma db push`/迁移）从启动脚本挪到单独的一次性步骤，避免并发。
+
 ## 部署到 Zeabur（手动）
 
 推荐 **SQLite + 持久磁盘**：代码零改动，本地与线上完全一致，适合内部工具。

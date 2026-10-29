@@ -1,0 +1,17 @@
+# 构建上下文排除项（尤其：绝不要把本地 SQLite 库打进镜像——内含真实渠道密钥）
+node_modules
+.next
+.git
+.gitignore
+.github
+*.db
+*.db-journal
+.env
+.env.*
+.claude
+src/generated
+tsconfig.tsbuildinfo
+npm-debug.log*
+Dockerfile
+docker-compose.yml
+.dockerignore

@@ -1,0 +1,20 @@
+# QWQCourier —— 自托管 / 本地验证用。启动：docker compose up -d
+services:
+  qwq-courier:
+    build: .
+    # 已推镜像到仓库时可改用： image: <你的仓库>/qwq-courier:latest
+    ports:
+      - "3000:3000"
+    environment:
+      # ⚠️ 必改为随机 64 位十六进制串：node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+      AUTH_SECRET: "change-me-to-a-random-hex-secret"
+      # 默认 SQLite 存持久卷；要用 Postgres 就改成连接串（并把 schema.prisma 的 provider 改 postgresql）
+      DATABASE_URL: "file:/data/qwq.db"
+      # 你的公开访问地址（SSO 回调靠它拼接）
+      APP_URL: "http://localhost:3000"
+    volumes:
+      - qwq-data:/data
+    restart: unless-stopped
+
+volumes:
+  qwq-data:
