@@ -7,7 +7,7 @@
   "author": "XUBAI",
   "repository": {
     "type": "git",
-    "url": "https://github.com/uesrbai/qwq-message.git"
+    "url": "https://github.com/uesrbai/qwq-courier.git"
   },
   "scripts": {
     "dev": "next dev",

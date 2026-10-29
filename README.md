@@ -122,7 +122,7 @@ npx.cmd zeabur@latest template create -f zeabur.yaml
 发布后把新模板码填进 README 顶部按钮链接 `https://zeabur.com/templates/<模板码>`。
 想要带你个人推荐码的官方按钮：Zeabur 控制台 → 账户 → **Template** → 选中 → **Share** → 复制按钮代码替换即可。
 
-> 模板里 `repo: 1305044949` 对应 GitHub 仓库 `uesrbai/qwq-message`、分支 `master`。
+> 模板里 `repo: 1305044949` 对应 GitHub 仓库 `uesrbai/qwq-courier`、分支 `master`。
 > 若 fork 到别的仓库，改成你自己仓库的数字 repo id（`https://api.github.com/repos/<owner>/<repo>` 里的 `id`）。
 
 ## 部署到 Zeabur（手动）
