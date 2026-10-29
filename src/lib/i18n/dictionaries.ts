@@ -3,14 +3,14 @@ import { type Locale, DEFAULT_LOCALE } from "./config";
 // 简体中文为基准字典，英文按同样结构提供（缺键会被 TS 报错）
 const zh = {
   common: {
-    tagline: "qwq · 统一消息分发平台",
+    tagline: "QWQCourier · 统一消息分发平台",
     save: "保存",
     cancel: "取消",
     loading: "加载中…",
   },
   nav: {
-    brandTitle: "qwq 消息分发",
-    brandSub: "Notification Hub",
+    brandTitle: "QWQCourier",
+    brandSub: "消息分发平台",
     overview: "概览",
     config: "配置",
     usage: "调用",
@@ -497,13 +497,13 @@ export type Dictionary = typeof zh;
 
 const en: Dictionary = {
   common: {
-    tagline: "qwq · Unified Notification Platform",
+    tagline: "QWQCourier · Unified Notification Platform",
     save: "Save",
     cancel: "Cancel",
     loading: "Loading…",
   },
   nav: {
-    brandTitle: "qwq Notify",
+    brandTitle: "QWQCourier",
     brandSub: "Notification Hub",
     overview: "Overview",
     config: "Configuration",

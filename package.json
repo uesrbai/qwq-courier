@@ -1,8 +1,8 @@
 {
-  "name": "qwq-massage",
+  "name": "qwq-courier",
   "version": "1.0.0",
   "private": true,
-  "description": "统一通知消息分发平台 —— 一个接口把消息发到短信/邮件/微信公众号/飞书/钉钉/企业微信/Webhook。",
+  "description": "QWQCourier —— 统一通知消息分发平台，一个接口把消息发到短信/邮件/微信公众号/飞书/钉钉/企业微信/Webhook。",
   "license": "MIT",
   "author": "XUBAI",
   "repository": {

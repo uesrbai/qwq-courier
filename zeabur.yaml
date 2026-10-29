@@ -1,11 +1,11 @@
 # yaml-language-server: $schema=https://schema.zeabur.app/template.json
-# Zeabur 一键部署模板 —— qwq 消息分发 / Notify Hub
+# Zeabur 一键部署模板 —— QWQCourier · 消息分发平台
 # 发布：  npx zeabur@latest template create -f zeabur.yaml   （拿到模板码后填进 README 的部署按钮）
 # 本地测试部署： npx zeabur@latest template deploy -f zeabur.yaml
 apiVersion: zeabur.com/v1
 kind: Template
 metadata:
-  name: qwq Notify Hub
+  name: QWQCourier
 spec:
   description: Unified notification dispatch platform — one API to send via SMS, email, WeChat, Feishu, DingTalk, WeCom and Webhook, with templates, failover and an IAM management API.
   tags:
@@ -14,7 +14,7 @@ spec:
     - API
     - Next.js
   readme: |-
-    # qwq Notify Hub
+    # QWQCourier
 
     A self-hosted **unified notification dispatch platform**. Your systems call one
     API with a key and send through SMS / email / WeChat Official Account / Feishu /
@@ -66,7 +66,7 @@ spec:
     zh-CN:
       description: 统一通知消息分发平台 —— 一个接口把消息发到短信/邮件/微信公众号/飞书/钉钉/企业微信/Webhook，含模板、容灾与 IAM 管理 API。
       readme: |-
-        # qwq 消息分发 · Notify Hub
+        # QWQCourier · 消息分发平台
 
         自托管的**统一通知消息分发平台**。你的各系统只要调用一个接口、带上密钥，就能通过
         短信 / 邮件 / 微信公众号 / 飞书 / 钉钉 / 企业微信 / Webhook 把消息发出去。

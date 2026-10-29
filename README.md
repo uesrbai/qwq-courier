@@ -1,4 +1,4 @@
-# qwq 消息分发 · Notification Hub
+# QWQCourier · 消息分发平台
 
 [![Deploy on Zeabur](https://zeabur.com/button.svg)](https://zeabur.com/templates/I0C9U0)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)

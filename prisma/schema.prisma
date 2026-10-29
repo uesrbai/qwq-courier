@@ -1,4 +1,4 @@
-// Prisma schema —— qwq-massage 通知分发工具
+// Prisma schema —— QWQCourier 通知分发工具
 // 说明：SQLite 不支持 Prisma 枚举，所以“类型”类字段统一用字符串，
 // 允许值在应用层用常量 + zod 校验（见 src/lib/constants.ts）。
 

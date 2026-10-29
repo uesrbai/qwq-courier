@@ -5,8 +5,8 @@ import { LOCALE_HTML_LANG } from "@/lib/i18n/config";
 import { I18nProvider } from "@/components/i18n-provider";
 
 export const metadata: Metadata = {
-  title: "qwq 消息分发 · Notify",
-  description: "统一通知消息分发平台 / Unified notification platform",
+  title: "QWQCourier · 消息分发",
+  description: "QWQCourier —— 统一通知消息分发平台 / Unified notification platform",
 };
 
 export default async function RootLayout({
