@@ -158,6 +158,22 @@ docker run -d -p 3000:3000 \
 > `DATABASE_URL` 填连接串即可（`src/lib/db.ts` 会自动切换适配器，SQLite 卷就不需要了）。
 > 多副本部署时建议把建表（`prisma db push`/迁移）从启动脚本挪到单独的一次性步骤，避免并发。
 
+### Kubernetes
+
+清单在 [`k8s/`](./k8s/)：`qwq-courier.yaml`（PVC + Deployment + Service）与 `secret.example.yaml`。
+
+```bash
+# 1. 构建并推送镜像，改 k8s/qwq-courier.yaml 里的 image 为你的镜像地址
+# 2. 创建 AUTH_SECRET 密钥（随机值，不落盘）
+kubectl create secret generic qwq-courier-secrets \
+  --from-literal=AUTH_SECRET="$(node -e "console.log(require('crypto').randomBytes(32).toString('hex'))")"
+# 3. 改 qwq-courier.yaml 里的 APP_URL 为你的域名，然后应用
+kubectl apply -f k8s/qwq-courier.yaml
+```
+
+> SQLite 为单写入：清单已固定 `replicas: 1` + `Recreate` 策略 + `ReadWriteOnce` 卷，避免多 Pod 抢挂。
+> 需要水平扩缩/多副本就改用 Postgres。对外暴露按你集群的 Ingress/Gateway 配置（Service 名 `qwq-courier`，端口 80 → 容器 3000）。
+
 ## 部署到 Zeabur（手动）
 
 推荐 **SQLite + 持久磁盘**：代码零改动，本地与线上完全一致，适合内部工具。

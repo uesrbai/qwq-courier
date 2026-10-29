@@ -1,0 +1,107 @@
+# QWQCourier —— Kubernetes 清单（PVC + Deployment + Service）
+# 应用前：1) 构建并推送镜像，替换下方 image；2) 用 secret.example.yaml 创建 AUTH_SECRET；
+#        3) 改 APP_URL 为你的公开域名。应用：kubectl apply -f k8s/
+#
+# 注意：默认用 SQLite 存在持久卷 /data，属单写入——故 replicas 固定为 1、滚动策略 Recreate、
+#      卷为 ReadWriteOnce，避免多 Pod 同时挂载。要水平扩缩/多副本请改用 Postgres（见 README）。
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: qwq-courier-data
+  labels:
+    app: qwq-courier
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+  # storageClassName: standard   # 按你集群的 StorageClass 填，留空用默认
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: qwq-courier
+  labels:
+    app: qwq-courier
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate # SQLite + RWO 卷：先停旧 Pod 再起新 Pod，避免抢挂
+  selector:
+    matchLabels:
+      app: qwq-courier
+  template:
+    metadata:
+      labels:
+        app: qwq-courier
+    spec:
+      containers:
+        - name: qwq-courier
+          image: REGISTRY/qwq-courier:latest # ← 换成你推送的镜像地址
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 3000
+          env:
+            - name: PORT
+              value: "3000"
+            # SQLite 存持久卷；要用 Postgres 就把这里改成连接串（并改 schema.prisma 的 provider）
+            - name: DATABASE_URL
+              value: "file:/data/qwq.db"
+            # ← 改成你的公开访问地址（SSO 回调靠它拼接）
+            - name: APP_URL
+              value: "https://qwq-courier.example.com"
+            - name: AUTH_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: qwq-courier-secrets
+                  key: AUTH_SECRET
+          volumeMounts:
+            - name: data
+              mountPath: /data
+          # 启动较慢（先 prisma db push 再 next start）：startupProbe 放宽，就绪后再交给 liveness
+          startupProbe:
+            httpGet:
+              path: /login
+              port: http
+            periodSeconds: 5
+            failureThreshold: 30 # 最多等 ~150s
+          readinessProbe:
+            httpGet:
+              path: /login
+              port: http
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /login
+              port: http
+            periodSeconds: 20
+            failureThreshold: 3
+          resources:
+            requests:
+              cpu: 100m
+              memory: 192Mi
+            limits:
+              cpu: "1"
+              memory: 512Mi
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: qwq-courier-data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: qwq-courier
+  labels:
+    app: qwq-courier
+spec:
+  type: ClusterIP
+  selector:
+    app: qwq-courier
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
